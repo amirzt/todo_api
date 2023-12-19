@@ -35,7 +35,7 @@ class SubTask(models.Model):
 
     title = models.CharField(max_length=255, null=False)
     status = models.BooleanField(default=False)
-    order = models.AutoField()
+    # order = models.AutoField()
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
