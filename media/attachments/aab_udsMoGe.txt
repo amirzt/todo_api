@@ -1,0 +1,1 @@
+java -jar bundlesigner-0.1.13.jar genbin  --bundle app-release.aab --bin C:\Users\AMIR\Desktop\projects\talap\build\app\outputs\bundle\release --v2-signing-enabled true --v3-signing-enabled false --ks tt-keystore.jks -v

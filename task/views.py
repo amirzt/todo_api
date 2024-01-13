@@ -1,3 +1,4 @@
+import datetime
 from datetime import timedelta
 
 from django.db.models import Count
@@ -37,7 +38,8 @@ def add_category(request):
 @permission_classes([IsAuthenticated])
 def add_task(request):
     serializer = AddTaskSerializer(data=request.data,
-                                   context={'data': request.data})
+                                   context={'data': request.data,
+                                            'user': request.user})
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data)
@@ -86,6 +88,7 @@ def update_task(request):
         task.note = request.data['note']
     if 'category' in request.data:
         task.category = Category.objects.get(id=request.data['category'])
+    task.save()
 
     return Response({'success': True})
 
@@ -117,7 +120,7 @@ def update_sub_task(request):
         sub_task.title = request.data['title']
     if 'status' in request.data:
         sub_task.status = request.data['status']
-
+    sub_task.save()
     return Response({'success': True})
 
 
@@ -154,7 +157,7 @@ def update_reminder(request):
 
     if 'time' in request.data:
         reminder.time = request.data['time']
-
+    reminder.save()
     return Response({'success': True})
 
 
@@ -187,7 +190,7 @@ def get_completed_data(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_weekly_chart(request):
-    date = request.data['date']
+    date = datetime.datetime.strptime(request.data['date'], '%Y-%m-%d').date()
 
     start_of_week = date - timedelta(days=date.weekday())
     end_of_week = start_of_week + timedelta(days=6)

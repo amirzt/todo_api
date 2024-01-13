@@ -81,15 +81,18 @@ class AddTaskSerializer(serializers.ModelSerializer):
         fields = ['title']
 
     def save(self, **kwargs):
-        task = Task(title=self.validated_data['title'])
+        task = Task(title=self.validated_data['title'],
+                    user=self.context.get('user'))
         task.save()
 
         if 'category' in self.context.get('data'):
-            task.category.id = self.context.get('data')['category']
+            task.category = Category.objects.get(id=self.context.get('data')['category'])
         if 'due_date' in self.context.get('data'):
             task.due_date = self.context.get('data')['due_date']
         if 'due_time' in self.context.get('data'):
             task.due_time = self.context.get('data')['due_time']
+        if 'note' in self.context.get('data'):
+            task.note = self.context.get('data')['note']
         task.save()
         return task
 
