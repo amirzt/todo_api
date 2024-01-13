@@ -53,12 +53,12 @@ def get_tasks(request):
     if 'category' in request.data:
         tasks = Task.objects.filter(category=request.data['category'],
                                     due_date__month=request.data['month'],
-                                    user=request.user)
+                                    user=request.user).order_by('-created_at')
     elif 'date' in request.data:
         tasks = Task.objects.filter(due_date=request.data['date'],
-                                    user=request.user)
+                                    user=request.user).order_by('-created_at')
     else:
-        tasks = Task.objects.filter(user=request.user)
+        tasks = Task.objects.filter(user=request.user).order_by('-created_at')
     serializer = GetTaskSerializer(tasks, many=True)
     return Response(serializer.data)
 

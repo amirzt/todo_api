@@ -78,10 +78,11 @@ class GetAttachmentSerializer(serializers.ModelSerializer):
 class AddTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['title']
+        fields = ['title', 'due_date']
 
     def save(self, **kwargs):
         task = Task(title=self.validated_data['title'],
+                    due_date=self.validated_data['due_date'],
                     user=self.context.get('user'))
         task.save()
 
