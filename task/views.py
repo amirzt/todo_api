@@ -52,6 +52,7 @@ def add_task(request):
 def get_tasks(request):
     if 'category' in request.data:
         tasks = Task.objects.filter(category=request.data['category'],
+                                    due_date__month=request.data['month'],
                                     user=request.user)
     elif 'date' in request.data:
         tasks = Task.objects.filter(due_date=request.data['date'],
