@@ -20,4 +20,6 @@ urlpatterns = [
     path('get_compeleted_data/', views.get_completed_data),
     path('get_weekly_chart/', views.get_weekly_chart),
     path('next_seven_tasks/', views.next_seven_tasks),
+    path('pending_by_category/', views.pending_by_category),
+
 ]

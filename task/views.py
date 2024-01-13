@@ -1,6 +1,7 @@
 import datetime
 from datetime import timedelta
 
+from django.db import models
 from django.db.models import Count
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
@@ -222,6 +223,22 @@ def next_seven_tasks(request):
     )
     serializer = GetTaskSerializer(tasks, many=True)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def pending_by_category(request):
+    categories_with_counts = Category.objects.filter(user=request.user).annotate(
+        uncompleted_tasks_count=Count('task', filter=models.Q(task__user=request.user, task__status=False))
+    )
+
+    # Filter out categories with zero uncompleted tasks
+    categories_with_counts = categories_with_counts.filter(uncompleted_tasks_count__gt=0)
+
+    # Create a list of tuples containing category name and uncompleted tasks count
+    result_list = [(category.name, category.uncompleted_tasks_count) for category in categories_with_counts]
+
+    return Response(result_list)
 
 
 
