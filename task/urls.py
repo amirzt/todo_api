@@ -21,5 +21,7 @@ urlpatterns = [
     path('get_weekly_chart/', views.get_weekly_chart),
     path('next_seven_tasks/', views.next_seven_tasks),
     path('pending_by_category/', views.pending_by_category),
+    path('delete_category/', views.delete_category),
+    path('update_category/', views.update_category),
 
 ]

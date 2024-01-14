@@ -37,13 +37,30 @@ def add_category(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+def delete_category(request):
+    category = Category.objects.get(id=request.data['id'])
+    category.delete()
+    return Response(status=200)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_category(request):
+    category = Category.objects.get(id=request.data['id'])
+    category.name = request.data['name']
+    category.save()
+    return Response(status=200)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def add_task(request):
     serializer = AddTaskSerializer(data=request.data,
                                    context={'data': request.data,
                                             'user': request.user})
     if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
+        task = serializer.save()
+        return Response({"id": task.id})
     return Response(serializer.errors)
 
 
@@ -98,11 +115,12 @@ def update_task(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_sub_task(request):
-    serializer = AddSubTaskSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors)
+    task = Task.objects.get(id=request.data['task'])
+    subs = request.data['sub_tasks']
+    for sub in subs:
+        sub_task = SubTask(title=sub['title'], task=task, status=sub['status'])
+        sub_task.save()
+    return Response({'success': True}, status=200)
 
 
 @api_view(['POST'])
