@@ -60,6 +60,11 @@ def add_task(request):
                                             'user': request.user})
     if serializer.is_valid():
         task = serializer.save()
+        if 'sub_tasks' in request.data:
+            for sub_task in request.data['sub_tasks']:
+                sub = SubTask(title=sub_task,
+                              task=task)
+                sub.save()
         return Response({"id": task.id})
     return Response(serializer.errors)
 
@@ -258,6 +263,3 @@ def pending_by_category(request):
     result_list = [(category.name, category.uncompleted_tasks_count) for category in categories_with_counts]
 
     return Response(result_list)
-
-
-
