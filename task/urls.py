@@ -7,6 +7,7 @@ urlpatterns = [
     path('add_category/', views.add_category),
     path('add_task/', views.add_task),
     path('get_tasks/', views.get_tasks),
+    path('get_favorites/', views.get_favorites),
     path('delete_task/', views.delete_task),
     path('add_sub_task/', views.add_sub_task),
     path('add_reminder/', views.add_reminder),

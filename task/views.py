@@ -88,6 +88,15 @@ def get_tasks(request):
     return Response(serializer.data)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_favorites(request):
+    tasks = Task.objects.filter(user=request.user,
+                                is_starred=True).order_by('-created_at')
+    serializer = GetTaskSerializer(tasks, many=True)
+    return Response(serializer.data)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def delete_task(request):
@@ -115,6 +124,14 @@ def update_task(request):
         task.note = request.data['note']
     if 'category' in request.data:
         task.category = Category.objects.get(id=request.data['category'])
+    if 'reminder' in request.data:
+        reminder = Reminder.objects.get(task=task)
+        if request.data['reminder'] == 'off':
+            reminder.delete()
+        else:
+            reminder.time = request.data['reminder']
+            reminder.save()
+
     task.save()
 
     return Response({'success': True})
