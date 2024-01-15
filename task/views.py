@@ -65,6 +65,9 @@ def add_task(request):
                 sub = SubTask(title=sub_task,
                               task=task)
                 sub.save()
+        if 'reminder' in request.data:
+            reminder = Reminder(time=request.data['reminder'], task=task)
+            reminder.save()
         return Response({"id": task.id})
     return Response(serializer.errors)
 
