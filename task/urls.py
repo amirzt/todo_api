@@ -24,5 +24,6 @@ urlpatterns = [
     path('pending_by_category/', views.pending_by_category),
     path('delete_category/', views.delete_category),
     path('update_category/', views.update_category),
+    path('search_task/', views.search_task),
 
 ]

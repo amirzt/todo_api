@@ -2,7 +2,7 @@ import datetime
 from datetime import timedelta
 
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -16,9 +16,9 @@ from task.serializers import GetCategorySerializer, AddCategorySerializer, AddTa
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_categories(request):
-    global_categories = Category.objects.filter(is_global=True)
+    # global_categories = Category.objects.filter(is_global=True)
     user_categories = Category.objects.filter(user=request.user)
-    categories = global_categories | user_categories
+    categories = user_categories
 
     serializer = GetCategorySerializer(categories, many=True)
     return Response(serializer.data)
@@ -180,11 +180,17 @@ def delete_sub_task(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_reminder(request):
-    serializer = AddReminderSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors)
+    try:
+        reminder = Reminder.objects.get(task_id=request.data['task'])
+        reminder.time = request.data['time']
+        reminder.save()
+        return Response({'success': True})
+    except Reminder.DoesNotExist:
+        serializer = AddReminderSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
 
 
 @api_view(['POST'])
@@ -283,3 +289,15 @@ def pending_by_category(request):
     result_list = [(category.name, category.uncompleted_tasks_count) for category in categories_with_counts]
 
     return Response(result_list)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def search_task(request):
+    search = request.data['search']
+    tasks = Task.objects.filter(
+        Q(title__icontains=search),
+        user=request.user
+    )
+    serializer = GetTaskSerializer(tasks, many=True)
+    return Response(serializer.data)

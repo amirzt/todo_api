@@ -94,6 +94,8 @@ class AddTaskSerializer(serializers.ModelSerializer):
             task.due_time = self.context.get('data')['due_time']
         if 'note' in self.context.get('data'):
             task.note = self.context.get('data')['note']
+        if 'color' in self.context.get('data'):
+            task.color = self.context.get('data')['color']
         task.save()
         return task
 

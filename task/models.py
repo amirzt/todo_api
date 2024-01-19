@@ -25,6 +25,7 @@ class Task(models.Model):
     status = models.BooleanField(default=False)
 
     note = models.TextField(null=True, max_length=1000)
+    color = models.CharField(max_length=255, null=True, default='#ffffff')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
