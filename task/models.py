@@ -25,6 +25,7 @@ class Task(models.Model):
     title = models.CharField(max_length=255, null=False)
     due_date = models.DateField(null=True)
     due_time = models.TimeField(null=True)
+    finished_date = models.DateTimeField(null=True, auto_now_add=True)
 
     is_starred = models.BooleanField(default=False)
 

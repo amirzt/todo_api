@@ -147,3 +147,25 @@ class GetCategoryWithTask(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = '__all__'
+
+
+class GetGantTask(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = ['id', 'title', 'priority', 'due_date', 'finished_date', 'color']
+
+
+class GetGanttCategory(serializers.ModelSerializer):
+    tasks = serializers.SerializerMethodField('get_tasks')
+
+    def get_tasks(self, object):
+        tasks = Task.objects.filter(category=object,
+                                    due_date__gte=self.context.get('start_date'),
+                                    due_date__lte=self.context.get('end_date'),
+                                    status=True)
+        serializer = GetGantTask(tasks, many=True)
+        return serializer.data
+
+    class Meta:
+        model = Category
+        fields = ['name', 'id', 'tasks']

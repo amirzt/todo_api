@@ -10,7 +10,7 @@ from rest_framework.response import Response
 
 from task.models import Category, Task, SubTask, Reminder, Attachment
 from task.serializers import GetCategorySerializer, AddCategorySerializer, AddTaskSerializer, AddSubTaskSerializer, \
-    AddReminderSerializer, AddAttachmentSerializer, GetTaskSerializer, GetCategoryWithTask
+    AddReminderSerializer, AddAttachmentSerializer, GetTaskSerializer, GetCategoryWithTask, GetGanttCategory
 
 
 @api_view(['GET'])
@@ -129,6 +129,8 @@ def update_task(request):
         task.is_starred = request.data['is_starred']
     if 'status' in request.data:
         task.status = request.data['status']
+        if task.status:
+            task.finished_date = datetime.datetime.now()
     if 'note' in request.data:
         task.note = request.data['note']
     if 'category' in request.data:
@@ -309,4 +311,15 @@ def search_task(request):
         user=request.user
     )
     serializer = GetTaskSerializer(tasks, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def get_gantt(request):
+    categories = Category.objects.filter(user=request.user)
+    serializer = GetGanttCategory(
+        categories, many=True,
+        context={'start_date': request.data['start_date'],
+                 'end_date': request.data['end_date']})
     return Response(serializer.data)
