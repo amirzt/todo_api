@@ -161,8 +161,7 @@ class GetGanttCategory(serializers.ModelSerializer):
     def get_tasks(self, object):
         tasks = Task.objects.filter(category=object,
                                     due_date__gte=self.context.get('start_date'),
-                                    due_date__lte=self.context.get('end_date'),
-                                    status=True)
+                                    due_date__lte=self.context.get('end_date'))
         serializer = GetGantTask(tasks, many=True)
         return serializer.data
 
