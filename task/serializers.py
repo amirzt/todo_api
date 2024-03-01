@@ -96,6 +96,8 @@ class AddTaskSerializer(serializers.ModelSerializer):
             task.note = self.context.get('data')['note']
         if 'color' in self.context.get('data'):
             task.color = self.context.get('data')['color']
+        if 'priority' in self.context.get('data'):
+            task.priority = self.context.get('data')['priority']
         task.save()
         return task
 
@@ -104,6 +106,11 @@ class GetTaskSerializer(serializers.ModelSerializer):
     sub_tasks = serializers.SerializerMethodField('get_sub_tasks')
     reminders = serializers.SerializerMethodField('get_reminders')
     attachments = serializers.SerializerMethodField('get_attachments')
+    done_subs = serializers.SerializerMethodField('get_done_subs')
+
+    @staticmethod
+    def get_done_subs(obj):
+        return SubTask.objects.filter(task=obj, status=True).count()
 
     @staticmethod
     def get_sub_tasks(obj):
@@ -125,4 +132,18 @@ class GetTaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
+        fields = '__all__'
+
+
+class GetCategoryWithTask(serializers.ModelSerializer):
+    tasks = serializers.SerializerMethodField('get_tasks')
+
+    @staticmethod
+    def get_tasks(obj):
+        tasks = Task.objects.filter(category=obj)
+        serializer = GetTaskSerializer(tasks, many=True)
+        return serializer.data
+
+    class Meta:
+        model = Category
         fields = '__all__'

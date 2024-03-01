@@ -10,7 +10,7 @@ from rest_framework.response import Response
 
 from task.models import Category, Task, SubTask, Reminder, Attachment
 from task.serializers import GetCategorySerializer, AddCategorySerializer, AddTaskSerializer, AddSubTaskSerializer, \
-    AddReminderSerializer, AddAttachmentSerializer, GetTaskSerializer
+    AddReminderSerializer, AddAttachmentSerializer, GetTaskSerializer, GetCategoryWithTask
 
 
 @api_view(['GET'])
@@ -18,9 +18,9 @@ from task.serializers import GetCategorySerializer, AddCategorySerializer, AddTa
 def get_categories(request):
     # global_categories = Category.objects.filter(is_global=True)
     user_categories = Category.objects.filter(user=request.user)
-    categories = user_categories
+    # categories = user_categories
 
-    serializer = GetCategorySerializer(categories, many=True)
+    serializer = GetCategorySerializer(user_categories, many=True)
     return Response(serializer.data)
 
 
@@ -75,16 +75,25 @@ def add_task(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_tasks(request):
-    if 'category' in request.data:
-        tasks = Task.objects.filter(category=request.data['category'],
-                                    due_date__month=request.data['month'],
-                                    user=request.user).order_by('-created_at')
-    elif 'date' in request.data:
-        tasks = Task.objects.filter(due_date=request.data['date'],
-                                    user=request.user).order_by('-created_at')
-    else:
-        tasks = Task.objects.filter(user=request.user).order_by('-created_at')
+    tasks = Task.objects.filter(due_date=request.data['date'],
+                                user=request.user).order_by('-created_at')
+    if 'sort' in request.data:
+        if request.data['sort'] == 'due_date':
+            tasks = tasks.order_by('-due_date')
+        if request.data['sort'] == 'created_at':
+            tasks = tasks.order_by('created_at')
+        if request.data['sort'] == '-created_at':
+            tasks = tasks.order_by('-created_at')
+
     serializer = GetTaskSerializer(tasks, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def get_tasks_by_category(request):
+    categories = Category.objects.filter(user=request.user).order_by('-created_at')
+    serializer = GetCategoryWithTask(categories, many=True)
     return Response(serializer.data)
 
 

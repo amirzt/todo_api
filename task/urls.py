@@ -25,5 +25,6 @@ urlpatterns = [
     path('delete_category/', views.delete_category),
     path('update_category/', views.update_category),
     path('search_task/', views.search_task),
+    path('get_tasks_by_category/', views.get_tasks_by_category),
 
 ]
