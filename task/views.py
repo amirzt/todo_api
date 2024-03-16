@@ -281,7 +281,7 @@ def get_completed_data(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_weekly_chart(request):
-    date = datetime.datetime.strptime(request.data['date'], '%Y-%m-%d').date()
+    date = datetime.strptime(request.data['date'], '%Y-%m-%d').date()
 
     start_of_week = date - timedelta(days=date.weekday())
     end_of_week = start_of_week + timedelta(days=6)
