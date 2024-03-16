@@ -1,6 +1,9 @@
 import datetime
 from datetime import timedelta
 
+from datetime import datetime
+from django.utils import timezone
+
 from django.db import models
 from django.db.models import Count, Q
 from django.utils import timezone
@@ -9,7 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from task.models import Category, Task, SubTask, Reminder, Attachment
-from task.serializers import GetCategorySerializer, AddCategorySerializer, AddTaskSerializer, AddSubTaskSerializer, \
+from task.serializers import GetCategorySerializer, AddCategorySerializer, AddTaskSerializer, \
     AddReminderSerializer, AddAttachmentSerializer, GetTaskSerializer, GetCategoryWithTask, GetGanttCategory
 
 
@@ -75,8 +78,32 @@ def add_task(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_tasks(request):
-    tasks = Task.objects.filter(due_date=request.data['date'],
-                                user=request.user).order_by('-created_at')
+    normal_tasks = Task.objects.filter(due_date=request.data['date'],
+                                       user=request.user).order_by('-created_at')
+
+    date = timezone.make_aware(datetime.strptime(request.data['date'], "%Y-%m-%d"))
+
+    daily_repeat = Task.objects.filter(repeat='Daily',
+                                       user=request.user).order_by('-created_at')
+
+    # print(date.weekday())
+    weekly_repeat = Task.objects.filter(due_date__week_day=date.weekday(),
+                                        repeat='Weekly',
+                                        user=request.user).order_by('-created_at')
+    # print(weekly_repeat.last().due_date.weekday())
+    monthly_repeat = Task.objects.filter(due_date__day=date.day,
+                                         repeat='Monthly',
+                                         user=request.user).order_by('-created_at')
+
+    yearly_repeat = Task.objects.filter(due_date__day=date.day,
+                                        due_date__month=date.month,
+                                        repeat='Yearly',
+                                        user=request.user).order_by('-created_at')
+
+    tasks = normal_tasks | daily_repeat | weekly_repeat | monthly_repeat | yearly_repeat
+
+    tasks = tasks.distinct()
+
     if 'sort' in request.data:
         if request.data['sort'] == 'due_date':
             tasks = tasks.order_by('-due_date')
@@ -133,6 +160,8 @@ def update_task(request):
             task.finished_date = datetime.datetime.now()
     if 'note' in request.data:
         task.note = request.data['note']
+    if 'repeat' in request.data:
+        task.repeat = request.data['repeat']
     if 'category' in request.data:
         task.category = Category.objects.get(id=request.data['category'])
     if 'reminder' in request.data:

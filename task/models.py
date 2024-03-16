@@ -19,6 +19,13 @@ class Task(models.Model):
         MEDIUM = 'Medium', 'Medium'
         HIGH = 'High', 'High'
 
+    class Repeat(models.TextChoices):
+        NoRepeat = 'NoRepeat'
+        Daily = 'Daily'
+        Weekly = 'Weekly'
+        Monthly = 'Monthly'
+        Yearly = 'Yearly'
+
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
 
@@ -34,6 +41,7 @@ class Task(models.Model):
     note = models.TextField(null=True, max_length=1000)
     color = models.CharField(max_length=255, null=True, default='#ffffff')
     priority = models.CharField(max_length=255, choices=Priority.choices, default=Priority.LOW)
+    repeat = models.CharField(max_length=255, choices=Repeat.choices, default=Repeat.NoRepeat)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -98,6 +98,8 @@ class AddTaskSerializer(serializers.ModelSerializer):
             task.color = self.context.get('data')['color']
         if 'priority' in self.context.get('data'):
             task.priority = self.context.get('data')['priority']
+        if 'repeat' in self.context.get('data'):
+            task.repeat = self.context.get('data')['repeat']
         task.save()
         return task
 
@@ -152,7 +154,7 @@ class GetCategoryWithTask(serializers.ModelSerializer):
 class GetGantTask(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['id', 'title', 'priority', 'due_date', 'finished_date', 'color']
+        fields = ['id', 'title', 'priority', 'due_date', 'finished_date', 'color', 'created_at', 'status']
 
 
 class GetGanttCategory(serializers.ModelSerializer):
