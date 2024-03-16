@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 
 from user.models import CustomUser
@@ -61,7 +63,7 @@ class SubTask(models.Model):
 class Reminder(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, null=True)
 
-    time = models.TimeField(null=False)
+    time = models.DateTimeField(null=False, default=datetime.datetime.now())
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
