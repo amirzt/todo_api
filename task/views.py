@@ -157,7 +157,7 @@ def update_task(request):
     if 'status' in request.data:
         task.status = request.data['status']
         if task.status:
-            task.finished_date = datetime.datetime.now()
+            task.finished_date = datetime.now()
     if 'note' in request.data:
         task.note = request.data['note']
     if 'repeat' in request.data:
