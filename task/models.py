@@ -32,6 +32,7 @@ class Task(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
 
     title = models.CharField(max_length=255, null=False)
+    start_date = models.DateTimeField(null=True, default=None)
     due_date = models.DateField(null=True)
     due_time = models.TimeField(null=True)
     finished_date = models.DateTimeField(null=True, auto_now_add=True)

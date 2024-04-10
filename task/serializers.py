@@ -88,6 +88,8 @@ class AddTaskSerializer(serializers.ModelSerializer):
 
         if 'category' in self.context.get('data'):
             task.category = Category.objects.get(id=self.context.get('data')['category'])
+        if 'start_date' in self.context.get('data'):
+            task.start_date = self.context.get('data')['start_date']
         if 'due_date' in self.context.get('data'):
             task.due_date = self.context.get('data')['due_date']
         if 'due_time' in self.context.get('data'):
@@ -154,7 +156,7 @@ class GetCategoryWithTask(serializers.ModelSerializer):
 class GetGantTask(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['id', 'title', 'priority', 'due_date', 'finished_date', 'color', 'created_at', 'status']
+        fields = ['id', 'title', 'priority', 'start_date', 'due_date', 'finished_date', 'color', 'created_at', 'status']
 
 
 class GetGanttCategory(serializers.ModelSerializer):

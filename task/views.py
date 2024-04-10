@@ -2,7 +2,7 @@ import datetime
 from datetime import timedelta
 
 from datetime import datetime
-from django.utils import timezone
+# from django.utils import timezone
 
 from django.db import models
 from django.db.models import Count, Q
