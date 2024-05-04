@@ -182,10 +182,12 @@ def update_task(request):
 def add_sub_task(request):
     task = Task.objects.get(id=request.data['task'])
     subs = request.data['sub_tasks']
+    ids = []
     for sub in subs:
         sub_task = SubTask(title=sub['title'], task=task, status=sub['status'])
         sub_task.save()
-    return Response({'success': True}, status=200)
+        ids.append(sub_task.id)
+    return Response({'success': True, 'ids': ids}, status=200)
 
 
 @api_view(['POST'])
