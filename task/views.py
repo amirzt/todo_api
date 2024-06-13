@@ -30,7 +30,8 @@ def get_categories(request):
     categories = categories.distinct()
     # categories = user_categories
 
-    serializer = GetCategorySerializer(categories, many=True)
+    serializer = GetCategorySerializer(categories, many=True,
+                                       context={'user': request.user})
     return Response(serializer.data)
 
 
