@@ -7,13 +7,16 @@ from datetime import datetime
 from django.db import models
 from django.db.models import Count, Q
 from django.utils import timezone
+from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from task.models import Category, Task, SubTask, Reminder, Attachment
+from task.models import Category, Task, SubTask, Reminder, Attachment, Participation
 from task.serializers import GetCategorySerializer, AddCategorySerializer, AddTaskSerializer, \
-    AddReminderSerializer, AddAttachmentSerializer, GetTaskSerializer, GetCategoryWithTask, GetGanttCategory
+    AddReminderSerializer, AddAttachmentSerializer, GetTaskSerializer, GetCategoryWithTask, GetGanttCategory, \
+    ParticipationSerializer
+from user.models import CustomUser
 
 
 @api_view(['GET'])
@@ -21,9 +24,13 @@ from task.serializers import GetCategorySerializer, AddCategorySerializer, AddTa
 def get_categories(request):
     # global_categories = Category.objects.filter(is_global=True)
     user_categories = Category.objects.filter(user=request.user)
+    participant_categories = Category.objects.filter(participation__user=request.user)
+
+    categories = user_categories | participant_categories
+    categories = categories.distinct()
     # categories = user_categories
 
-    serializer = GetCategorySerializer(user_categories, many=True)
+    serializer = GetCategorySerializer(categories, many=True)
     return Response(serializer.data)
 
 
@@ -100,7 +107,11 @@ def get_tasks(request):
                                         repeat='Yearly',
                                         user=request.user).order_by('-created_at')
 
-    tasks = normal_tasks | daily_repeat | weekly_repeat | monthly_repeat | yearly_repeat
+    # participant
+    participant_tasks = Task.objects.filter(category__participation__user=request.user,
+                                            due_date=request.data['date'], )
+
+    tasks = normal_tasks | daily_repeat | weekly_repeat | monthly_repeat | yearly_repeat | participant_tasks
 
     tasks = tasks.distinct()
 
@@ -354,3 +365,37 @@ def get_gantt(request):
         context={'start_date': request.data['start_date'],
                  'end_date': request.data['end_date']})
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_participation(request):
+    try:
+        user = CustomUser.objects.get(email=request.data['email'])
+
+        serializer = ParticipationSerializer(data=request.data,
+                                             context={'user': user})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+    except CustomUser.DoesNotExist:
+        return Response({"message": "No user found with this email"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def remove_participation(request):
+    pa = Participation.objects.get(id=request.data['id'])
+    pa.delete()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def edit_participation(request):
+    pa = Participation.objects.get(id=request.data['id'])
+    pa.role = request.data['role']
+    pa.save()
+    return Response(status=status.HTTP_200_OK)

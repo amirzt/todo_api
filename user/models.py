@@ -24,6 +24,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=50, unique=True, default=get_username)
 
     email = models.CharField(max_length=255, null=True)
+    name = models.CharField(max_length=100, default='', null=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []

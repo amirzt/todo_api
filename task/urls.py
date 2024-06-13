@@ -27,5 +27,8 @@ urlpatterns = [
     path('search_task/', views.search_task),
     path('get_tasks_by_category/', views.get_tasks_by_category),
     path('get_gantt/', views.get_gantt),
+    path('add_participation/', views.add_participation),
+    path('remove_participation/', views.remove_participation),
+    path('edit_participation/', views.edit_participation),
 
 ]

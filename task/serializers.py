@@ -1,9 +1,24 @@
 from rest_framework import serializers
 
-from task.models import Category, Task, SubTask, Reminder, Attachment
+from task.models import Category, Task, SubTask, Reminder, Attachment, Participation
+from user.serializers import CustomUserSerializer
+
+
+class GetParticipationSerializer(serializers.ModelSerializer):
+    user = CustomUserSerializer()
+
+    class Meta:
+        model = Participation
+        fields = '__all__'
 
 
 class GetCategorySerializer(serializers.ModelSerializer):
+    participation = serializers.SerializerMethodField('get_pa')
+
+    @staticmethod
+    def get_pa(self):
+        return GetParticipationSerializer(Participation.objects.filter(category=self), many=True).data
+
     class Meta:
         model = Category
         fields = '__all__'
@@ -172,3 +187,16 @@ class GetGanttCategory(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['name', 'id', 'tasks']
+
+
+class ParticipationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Participation
+        fields = ['role', 'category']
+
+    def save(self, **kwargs):
+        pa = Participation(role=self.validated_data['role'],
+                           category=self.validated_data['category'],
+                           user=self.context.get('user'))
+        pa.save()
+        return pa

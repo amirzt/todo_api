@@ -78,3 +78,18 @@ class Attachment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+class Participation(models.Model):
+    class Roles(models.TextChoices):
+        owner = 'owner'
+        admin = 'admin'
+        publisher = 'publisher'
+        viewer = 'viewer'
+
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    role = models.CharField(max_length=100, choices=Roles.choices, default=Roles.viewer)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+

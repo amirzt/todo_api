@@ -1,4 +1,5 @@
 from django.utils import timezone
+from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -56,3 +57,40 @@ def google_register(request):
     user.email = request.data['email']
     user.save()
     return Response({'message': 'Email has been added successfully'})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_email(request):
+    user = CustomUser.objects.get(id=request.user.id)
+
+    if user.email is not None:
+        if user.check_password(request.POST.get('password')):
+            return Response({
+                'exist': True
+            }, status=200)
+        else:
+            return Response({
+                'message': 'رمز ورود اشتباه است'
+            }, status=403)
+    else:
+        user.set_password(request.data['password'])
+        user.email = request.data['email']
+        user.is_active = True
+        user.save()
+
+        return Response({
+            'exist': False
+        }, status=200)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_user(request):
+    user = CustomUser.objects.get(id=request.user.id)
+
+    if 'name' in request.data:
+        user.name = request.data['name']
+
+    user.save()
+    return Response(status=status.HTTP_200_OK)
