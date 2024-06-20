@@ -191,7 +191,7 @@ def update_task(request):
             reminder.save()
     if 'assign' in request.data:
         if request.data['assign'] != 0:
-            task.assign.id = request.data['assign']
+            task.assign = CustomUser.objects.get(id=request.data['assign'])
         else:
             task.assign = None
 
