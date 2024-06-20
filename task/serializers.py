@@ -135,6 +135,7 @@ class GetTaskSerializer(serializers.ModelSerializer):
     reminders = serializers.SerializerMethodField('get_reminders')
     attachments = serializers.SerializerMethodField('get_attachments')
     done_subs = serializers.SerializerMethodField('get_done_subs')
+    assign = CustomUserSerializer()
 
     @staticmethod
     def get_done_subs(obj):

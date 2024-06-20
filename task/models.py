@@ -28,7 +28,7 @@ class Task(models.Model):
         Monthly = 'Monthly'
         Yearly = 'Yearly'
 
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='user')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
 
     title = models.CharField(max_length=255, null=False)
@@ -45,6 +45,8 @@ class Task(models.Model):
     color = models.CharField(max_length=255, null=True, default='#ffffff')
     priority = models.CharField(max_length=255, choices=Priority.choices, default=Priority.LOW)
     repeat = models.CharField(max_length=255, choices=Repeat.choices, default=Repeat.NoRepeat)
+
+    assign = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, default=None, null=True, related_name='assign')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
