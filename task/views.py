@@ -406,3 +406,21 @@ def edit_participation(request):
     pa.role = request.data['role']
     pa.save()
     return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def leave(request):
+    pa = Participation.objects.get(category_id=request.data['category'],
+                                   user=request.user)
+    pa.delete()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def stop_sharing(request):
+    pa = Participation.objects.filter(category_id=request.data['category'])
+    for p in pa:
+        p.delete()
+    return Response(status=status.HTTP_200_OK)
