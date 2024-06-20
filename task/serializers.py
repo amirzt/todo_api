@@ -166,6 +166,21 @@ class GetTaskSerializer(serializers.ModelSerializer):
 class GetCategoryWithTask(serializers.ModelSerializer):
     tasks = serializers.SerializerMethodField('get_tasks')
 
+    participation = serializers.SerializerMethodField('get_pa')
+    role = serializers.SerializerMethodField('get_role')
+
+    def get_role(self, ca):
+        pa = Participation.objects.filter(category=ca,
+                                          user=self.context.get('user'))
+        if pa.count() == 0:
+            return 'owner'
+        else:
+            return pa.last().role
+
+    @staticmethod
+    def get_pa(self):
+        return GetParticipationSerializer(Participation.objects.filter(category=self), many=True).data
+
     @staticmethod
     def get_tasks(obj):
         tasks = Task.objects.filter(category=obj)

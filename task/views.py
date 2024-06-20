@@ -24,10 +24,10 @@ from user.models import CustomUser
 def get_categories(request):
     # global_categories = Category.objects.filter(is_global=True)
     user_categories = Category.objects.filter(user=request.user)
-    participant_categories = Category.objects.filter(participation__user=request.user)
+    # participant_categories = Category.objects.filter(participation__user=request.user)
 
-    categories = user_categories | participant_categories
-    categories = categories.distinct()
+    categories = user_categories
+    # categories = categories.distinct()
     # categories = user_categories
 
     serializer = GetCategorySerializer(categories, many=True,
@@ -131,8 +131,14 @@ def get_tasks(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_tasks_by_category(request):
-    categories = Category.objects.filter(user=request.user).order_by('-created_at')
-    serializer = GetCategoryWithTask(categories, many=True)
+    user_categories = Category.objects.filter(user=request.user)
+    participant_categories = Category.objects.filter(participation__user=request.user)
+
+    categories = user_categories | participant_categories
+    categories = categories.distinct()
+
+    serializer = GetCategoryWithTask(categories, many=True,
+                                     context={'user': request.user})
     return Response(serializer.data)
 
 

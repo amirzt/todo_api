@@ -85,6 +85,7 @@ class Participation(models.Model):
         admin = 'admin'
         publisher = 'publisher'
         viewer = 'viewer'
+        assign = 'assign'
 
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
