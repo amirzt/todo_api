@@ -76,6 +76,7 @@ def add_email(request):
     else:
         user.set_password(request.data['password'])
         user.email = request.data['email']
+        user.name = request.data['email'].split('@')[0]
         user.is_active = True
         user.save()
 
@@ -94,3 +95,15 @@ def update_user(request):
 
     user.save()
     return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def search_user(request):
+    try:
+        user = CustomUser.objects.get(email=request.data['email'])
+        return Response({
+            'name': user.name
+        })
+    except CustomUser.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND, data={"message": "not found"})
