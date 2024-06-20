@@ -190,7 +190,7 @@ def update_task(request):
             reminder.time = request.data['reminder']
             reminder.save()
     if 'assign' in request.data:
-        if request.data['assign'] != '':
+        if request.data['assign'] != 0:
             task.assign.id = request.data['assign']
         else:
             task.assign = None
