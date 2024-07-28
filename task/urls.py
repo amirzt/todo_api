@@ -32,5 +32,6 @@ urlpatterns = [
     path('edit_participation/', views.edit_participation),
     path('leave/', views.leave),
     path('stop_sharing/', views.stop_sharing),
+    path('new_calendar/', views.new_calendar),
 
 ]

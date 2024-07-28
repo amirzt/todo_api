@@ -23,7 +23,7 @@ def add_note(request):
                                    context={"user": CustomUser.objects.get(id=request.user.id)})
     if serializer.is_valid():
         serializer.save()
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
     else:
         return Response(serializer.errors)
 
@@ -31,7 +31,7 @@ def add_note(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def delete_note(request):
-    note = Note.objects.get(id=request.data['note'])
+    note = Note.objects.get(id=request.data['id'])
     note.delete()
     return Response(status=status.HTTP_200_OK)
 
@@ -39,7 +39,7 @@ def delete_note(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def update_note(request):
-    note = Note.objects.get(id=request.data['note'])
+    note = Note.objects.get(id=request.data['id'])
     if 'title' in request.data:
         note.title = request.data['title']
     if 'description' in request.data:

@@ -429,3 +429,21 @@ def stop_sharing(request):
     for p in pa:
         p.delete()
     return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def new_calendar(request):
+    start_date = datetime.strptime(request.data['start_date'], "%Y-%m-%d").date()
+    end_date = datetime.strptime(request.data['end_date'], "%Y-%m-%d").date()
+
+    data = {}
+
+    current_date = start_date
+    while current_date <= end_date:
+        tasks = Task.objects.filter(due_date=current_date,
+                                    user=CustomUser.objects.get(id=request.user.id))
+        data[str(current_date)] = GetTaskSerializer(tasks, many=True).data
+        current_date += timedelta(days=1)
+
+    return Response(data=data)
